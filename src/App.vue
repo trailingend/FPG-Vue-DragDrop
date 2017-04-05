@@ -1,6 +1,6 @@
 <template lang="html">
-    <div class="content">
-        <svg class="hidden">
+	<div class="content">
+		<svg class="hidden">
 			<defs>
 				<symbol id="icon-search" viewBox="0 0 24 24">
 					<title>search</title>
@@ -13,47 +13,52 @@
 			</defs>
 		</svg>
 
-        <div class="search-ctnr">
-            <button id="close-search-btn" class="btn close-btn" >
-                <svg class="icon cross-icon">
-                    <use xlink:href="#icon-cross"></use>
-                </svg>
-            </button>
-            <div class="search-wrapper">
-            	<input id="search-input" class="search-input" name="search" type="search" placeholder="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
-            	<button id="start-search-btn" class="btn open-btn" @click="handleSearch()">
-                    <svg class="icon search-icon">
-                        <use xlink:href="#icon-search"></use>
-                    </svg>
-                </button>
-            </div>
-            <div class="search-overlay"></div>
-        </div>
-
-
-        <!-- grid of images -->
-        <div id="grid" class="grid-ctnr maximizer">
-            <div class="grid-item" v-for="resultUrl, index in resultUrls"
-                    :class="['grid-img', `grid-img-${ index }`]"
-                    :style="{ backgroundImage: `url( ${resultUrl} )` }" >
-                <div class="grid-padding"></div>
-            </div>
-        </div>
-        <!-- container for saved images -->
-        <div id="drop-ctnr" class="drop-ctnr">
-            <div class="drop-item" v-for="index in 4"
-                    :class="['drop-img', `drop-img-${ index }`]"
-                    :style="{ backgroundImage: `url(${ savedUrls[index - 1] == undefined ? '': savedUrls[index - 1] })` }" >
-                    <div class="drop-padding"></div>
-            </div>
-
+		<div class="search-ctnr">
+			<button id="close-search-btn" class="btn close-btn" >
+				<svg class="icon cross-icon">
+					<use xlink:href="#icon-cross"></use>
+				</svg>
+			</button>
+			<div class="search-wrapper">
+				<input id="search-input" class="search-input" name="search" type="search" placeholder="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+				<button id="start-search-btn" class="btn open-btn" @click="handleSearch()">
+					<svg class="icon search-icon">
+						<use xlink:href="#icon-search"></use>
+					</svg>
+				</button>
+			</div>
+			<div class="search-overlay"></div>
 		</div>
-        <!-- overlay when saving images -->
-		<div class="drop-overlay"></div>
 
-        <!-- button to show saved panel -->
-        <button id="view-btn" class="view-btn" @click="handleView()">View Saved Panel</button>
-    </div>
+
+		<!-- grid of images -->
+		<div id="grid" class="grid-ctnr maximizer">
+			<div class="grid-item" v-for="resultUrl, index in resultUrls"
+					:class="['grid-img', `grid-img-${ index }`]"
+					:style="{ backgroundImage: `url( ${resultUrl} )` }" >
+				<div class="grid-padding"></div>
+			</div>
+		</div>
+		<!-- container for saved images -->
+		<div id="drop-ctnr" class="drop-ctnr ">
+			<div class="drop-item" v-for="index in 3"
+					:class="['drop-img', `drop-img-${ index }`]"
+					:style="{ backgroundImage: `url(${ savedUrls[index - 1] == undefined ? '': savedUrls[index - 1] })` }" >
+					<div class="drop-padding" v-if="savedUrls[index - 1] === undefined"></div>
+			</div>
+			<button id="hide-panel-btn" class="btn hide-btn" @click="handleHidePanel()">
+				<svg class="icon cross-icon">
+					<use xlink:href="#icon-cross"></use>
+				</svg>
+			</button>
+		</div>
+		<!-- overlay when saving images -->
+		<div class="drop-overlay">
+		</div>
+
+		<!-- button to show saved panel -->
+		<button id="view-btn" class="view-btn" @click="handleView()">View Saved Panel</button>
+	</div>
 </template>
 
 <script>
@@ -62,119 +67,112 @@ import Drag from './drag';
 import Search from './search';
 
 export default {
-    data() {
-        return {
-            title: 'hehe',
-            unsplashAPI: new Unsplash({
-                applicationId: "86ebf85b28e3e0ca884f9fbe6a0de52ea0acd3643d90ec7ca884189d77d63353",
-                secret: "45609de743ad65b3e7b0639d427ff90af5d3e8b96dc0795e6221396ae4f79e95",
-                callbackUrl: "urn:ietf:wg:oauth:2.0:oob"
-            }),
-            savedUrls: [],
-            resultUrls: [],
-            dragInstance: null,
-            searchInstance: null,
-        }
-    },
-    created() {
-        this.resultUrls = this.fetchRandom();
+	data() {
+		return {
+			title: 'hehe',
+			unsplashAPI: new Unsplash({
+				applicationId: "86ebf85b28e3e0ca884f9fbe6a0de52ea0acd3643d90ec7ca884189d77d63353",
+				secret: "45609de743ad65b3e7b0639d427ff90af5d3e8b96dc0795e6221396ae4f79e95",
+				callbackUrl: "urn:ietf:wg:oauth:2.0:oob"
+			}),
+			savedUrls: [],
+			resultUrls: [],
+			dragInstance: null,
+			searchInstance: null,
+		}
+	},
+	created() {
+		this.resultUrls = this.fetchRandom();
 
-        // //TODO delete it
-        // this.resultUrls = [
-        //     'http://placehold.it/300x300',
-        //     'http://placehold.it/300x300',
-        //     'http://placehold.it/300x300',
-        //     'http://placehold.it/300x300',
-        //     'http://placehold.it/300x300',
-        //     'http://placehold.it/300x300',
-        //     'http://placehold.it/300x300',
-        //     'http://placehold.it/300x300',
-        //     'http://placehold.it/300x300',
-        // ];
+		// //TODO delete it
+		// this.resultUrls = [
+		//     'http://placehold.it/300x300',
+		//     'http://placehold.it/300x300',
+		//     'http://placehold.it/300x300',
+		//     'http://placehold.it/300x300',
+		//     'http://placehold.it/300x300',
+		//     'http://placehold.it/300x300',
+		//     'http://placehold.it/300x300',
+		//     'http://placehold.it/300x300',
+		//     'http://placehold.it/300x300',
+		// ];
 
-    },
-    mounted() {
-        //TODO delete it
-        // this.dragInstance = new Drag('.grid-item', '.drop-ctnr', '.drop-item', this.saveUrl);
+	},
+	mounted() {
+		//TODO delete it
+		// this.dragInstance = new Drag('.grid-item', '.drop-ctnr', '.drop-item', this.saveUrl);
 
-        this.searchInstance = new Search();
-    },
-    computed: {
-        output: function() {
-        }
-    },
-    watch: {
-        counter: function(value) {
+		this.searchInstance = new Search();
+	},
+	computed: {
+		output: function() {
+		}
+	},
+	watch: {
+		counter: function(value) {
 
-        }
-    },
-    methods: {
-        fetchRandom() {
-            const urls = [];
-            this.unsplashAPI.photos.listPhotos(1, 9, "latest")
-                .then(toJson)
-                .then(response => {
-                    response.forEach((elem, index) =>{
-                        urls.push(elem.urls.thumb);
-                    });
-                    return urls;
-                })
-                .then(results => {
-                    this.resultUrls = results;
-                })
-                .then(()=>{
-                    this.dragInstance = new Drag('.grid-item', '.drop-ctnr', '.drop-item', this.saveUrl);
-                });
-        },
-        fetchByKeyword(keyword) {
-            const urls = [];
-            this.unsplashAPI.photos.searchPhotos(keyword)
-                .then(toJson)
-                .then(response => {
-                    console.log(response)
-                    response.forEach((elem, index) =>{
-                        urls.push(elem.urls.thumb);
-                    });
-                    return urls;
-                })
-                .then(results => {
-                    this.resultUrls = results;
-                })
-                .then(()=>{
-                    this.dragInstance = new Drag('.grid-item', '.drop-ctnr', '.drop-item', this.saveUrl);
-                });
-        },
-        handleSearch() {
-            const searchInput = this.searchInstance.search();
-            if (searchInput != '') {
-                this.resultUrls = this.fetchByKeyword(searchInput);
-                this.searchInstance.closeSearch();
-                setTimeout(()=>{
-                    this.dragInstance = new Drag('.grid-item', '.drop-ctnr', '.drop-item', this.saveUrl);
-                    this.savedUrls = [];
-                }, 100);
-            }
-        },
-        handleSave(){
-
-        },
-        saveUrl(selectedDiv) {
-            const stringToParse = $(selectedDiv).css('background-image');
-            const urlString = stringToParse.replace(/(url\(|\)|")/g, '');
-
-            if (this.savedUrls.includes(urlString)) {
-                // if in save, not save
-            } else {
-                this.savedUrls.push(urlString);
-            }
-            console.log(this.savedUrls)
-        },
-        checkIfUrlSaved() {
-
-        },
-        handleView() {
-
-        }
-    }
+		}
+	},
+	methods: {
+		fetchRandom() {
+			const urls = [];
+			this.unsplashAPI.photos.listPhotos(1, 9, "latest")
+				.then(toJson)
+				.then(response => {
+					response.forEach((elem, index) =>{
+						urls.push(elem.urls.thumb);
+					});
+					return urls;
+				})
+				.then(results => {
+					this.resultUrls = results;
+				})
+				.then(()=>{
+					this.dragInstance = new Drag('.grid-item', '.drop-ctnr', '.drop-item', this.saveUrl);
+				});
+		},
+		fetchByKeyword(keyword) {
+			const urls = [];
+			this.unsplashAPI.photos.searchPhotos(keyword, [] ,1, 9)
+				.then(toJson)
+				.then(response => {
+					console.log(response)
+					response.forEach((elem, index) =>{
+						urls.push(elem.urls.thumb);
+					});
+					return urls;
+				})
+				.then(results => {
+					this.resultUrls = results;
+				})
+				.then(()=>{
+					this.dragInstance = new Drag('.grid-item', '.drop-ctnr', '.drop-item', this.saveUrl);
+				});
+		},
+		handleSearch() {
+			const searchInput = this.searchInstance.search();
+			if (searchInput != '') {
+				this.resultUrls = this.fetchByKeyword(searchInput);
+				this.searchInstance.closeSearch();
+				setTimeout(()=>{
+					this.dragInstance = new Drag('.grid-item', '.drop-ctnr', '.drop-item', this.saveUrl);
+					this.savedUrls = [];
+				}, 100);
+			}
+		},
+		saveUrl(selectedDiv) {
+			const stringToParse = $(selectedDiv).css('background-image');
+			const urlString = stringToParse.replace(/(url\(|\)|")/g, '');
+			if (! this.savedUrls.includes(urlString)) {
+				this.savedUrls.push(urlString);
+			}
+		},
+		handleView() {
+			document.querySelector('.drop-ctnr').classList.add("show");
+		},
+		handleHidePanel(){
+			document.querySelector('.drop-ctnr').classList.remove("show");
+		}
+	}
 }
 </script>
